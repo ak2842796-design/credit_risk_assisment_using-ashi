@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CreditIQ | Loan Risk Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
+
+<main class="wrap">
+  <header class="hero">
+    <span class="pill"><i class="dot"></i> ML powered</span>
+    <h1>Credit<span>IQ</span></h1>
+    <p>Enter the applicant details and get an instant loan default risk assessment.</p>
+  </header>
+
+  <div class="layout">
+    <form id="form" class="card" novalidate>
+      <div class="presets">
+        <span>Quick fill:</span>
+        <button type="button" class="chip" data-preset="low">Low risk sample</button>
+        <button type="button" class="chip" data-preset="high">High risk sample</button>
+        <button type="button" class="chip ghost" id="resetBtn">Clear</button>
+      </div>
+
+      <h2>Applicant</h2>
+      <div class="grid">
+        <label class="field">Age
+          <input type="number" name="person_age" min="18" max="100" step="1" placeholder="e.g. 30" required></label>
+        <label class="field">Annual income
+          <input type="number" name="person_income" min="1" step="any" placeholder="e.g. 60000" required></label>
+        <label class="field">Home ownership
+          <select name="person_home_ownership" required>
+            <option value="" disabled selected>Select</option>
+            <option>RENT</option><option>OWN</option><option>MORTGAGE</option><option>OTHER</option></select></label>
+        <label class="field">Employment length (yrs)
+          <input type="number" name="person_emp_length" min="0" max="60" step="any" placeholder="e.g. 5" required></label>
+      </div>
+
+      <h2>Loan</h2>
+      <div class="grid">
+        <label class="field">Loan intent
+          <select name="loan_intent" required>
+            <option value="" disabled selected>Select</option>
+            <option>EDUCATION</option><option>MEDICAL</option><option>VENTURE</option>
+            <option>PERSONAL</option><option>HOMEIMPROVEMENT</option><option>DEBTCONSOLIDATION</option></select></label>
+        <label class="field">Loan amount
+          <input type="number" name="loan_amnt" min="1" step="any" placeholder="e.g. 10000" required></label>
+        <label class="field">Interest rate (%)
+          <input type="number" name="loan_int_rate" min="0" max="40" step="any" placeholder="e.g. 11.5" required></label>
+        <div class="field">Loan % of income
+          <output id="pctIncome" class="auto">0.00</output></div>
+      </div>
+
+      <div class="field">Loan grade
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="loan_grade" value="A" required><span>A</span></label>
+          <label><input type="radio" name="loan_grade" value="B"><span>B</span></label>
+          <label><input type="radio" name="loan_grade" value="C"><span>C</span></label>
+          <label><input type="radio" name="loan_grade" value="D"><span>D</span></label>
+          <label><input type="radio" name="loan_grade" value="E"><span>E</span></label>
+          <label><input type="radio" name="loan_grade" value="F"><span>F</span></label>
+          <label><input type="radio" name="loan_grade" value="G"><span>G</span></label>
+        </div>
+      </div>
+
+      <h2>Credit history</h2>
+      <div class="grid">
+        <div class="field">Previous default on file
+          <div class="seg two" role="radiogroup">
+            <label><input type="radio" name="cb_person_default_on_file" value="N" required><span>No</span></label>
+            <label><input type="radio" name="cb_person_default_on_file" value="Y"><span>Yes</span></label>
+          </div></div>
+        <label class="field">Credit history length (yrs)
+          <input type="number" name="cb_person_cred_hist_length" min="0" max="80" step="1" placeholder="e.g. 6" required></label>
+      </div>
+
+      <button id="submitBtn" class="cta" type="submit"><span class="label">Analyze risk</span><span class="spin"></span></button>
+      <p id="error" class="error" role="alert"></p>
+    </form>
+
+    <aside id="result" class="card result" aria-live="polite">
+      <h2>Assessment</h2>
+      <div class="ringbox">
+        <svg viewBox="0 0 200 200" class="ring">
+          <circle class="track" cx="100" cy="100" r="88"/>
+          <circle id="fill" class="fill" cx="100" cy="100" r="88"/>
+        </svg>
+        <div class="center"><b id="pct">0</b><small>% default<br>probability</small></div>
+      </div>
+      <div id="badge" class="badge">Awaiting input</div>
+      <p id="msg" class="msg">Fill in the form and press <b>Analyze risk</b>.</p>
+      <div class="meter"><div class="bar"><i id="tick" class="tick"></i><i id="mark" class="mark"></i></div>
+        <div class="legend"><span>0%</span><span id="thrTxt">Threshold: -</span><span>100%</span></div></div>
+      <p class="note">Predictions are model estimates for demonstration and not financial advice.</p>
+    </aside>
+  </div>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
