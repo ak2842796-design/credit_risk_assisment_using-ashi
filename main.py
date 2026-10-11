@@ -1,29 +1,29 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-import pandas as pd
-import joblib
 from contextlib import asynccontextmanager
+from pathlib import Path
+
+import joblib
+import pandas as pd
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
+BASE_DIR = Path(__file__).parent
 ml_model = {}
-  
+
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):          # <-- app parameter add kiya
-    ml_model['model'] = joblib.load('model/credit_risk_model.pkl')
-    ml_model['best_threshold'] = joblib.load('model/best_threshold.pkl')
+async def lifespan(app: FastAPI):
+    ml_model["model"] = joblib.load(BASE_DIR / "model" / "credit_risk_model.pkl")
+    ml_model["best_threshold"] = joblib.load(BASE_DIR / "model" / "best_threshold.pkl")
     yield
     ml_model.clear()
 
-app = FastAPI(lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+app = FastAPI(title="Credit Risk API", lifespan=lifespan)
+
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 
 class LoanApplication(BaseModel):
     person_age: int
@@ -35,23 +35,28 @@ class LoanApplication(BaseModel):
     loan_amnt: float
     loan_int_rate: float
     loan_percent_income: float
-    cb_person_default_on_file: str       # cd_ -> cb_
-    cb_person_cred_hist_length: int      # cd_ -> cb_
+    cb_person_default_on_file: str
+    cb_person_cred_hist_length: int
 
-@app.get("/")
-def read_root():
+
+@app.get("/health")
+def health():
     return {"message": "Credit Risk Prediction API is running!"}
+
 
 @app.post("/predict")
 def predict(data: LoanApplication):
-    input_df = pd.DataFrame([data.model_dump()])   # .dict() deprecated hai
-    probability = float(ml_model['model'].predict_proba(input_df)[:, 1][0])
-    threshold = float(ml_model['best_threshold'])
+    input_df = pd.DataFrame([data.model_dump()])
+    probability = float(ml_model["model"].predict_proba(input_df)[:, 1][0])
+    threshold = float(ml_model["best_threshold"])
     prediction = int(probability >= threshold)
     return {
         "default_probability": probability,
         "default_prediction": prediction,
         "threshold": threshold,
-        "Result": "high risk" if prediction == 1 else "low risk"
+        "Result": "high risk" if prediction == 1 else "low risk",
     }
-app.mount("/static", StaticFiles(directory="static",html=True), name="static")  # Static files serve karne ke liye
+
+
+# Sabse neeche rakhein, taaki API routes pehle match hon
+app.mount("/", StaticFiles(directory=BASE_DIR / "static", html=True), name="static")
